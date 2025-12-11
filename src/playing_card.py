@@ -1,0 +1,53 @@
+from enum import Enum
+
+class Rank(Enum):
+    """
+    An Enum covering the available card ranks. Ace is default 1.
+    """
+    ACE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+    SIX = 6
+    SEVEN = 7
+    EIGHT = 8
+    NINE = 9
+    TEN = 10
+    JACK = 11
+    QUEEN = 12
+    KING = 13
+
+    def __repr__(self) -> str:
+        return f"{self.name.title()}"
+
+class Suit(Enum):
+    """
+    An Enum covering the 4 suits.
+    """
+    SPADES = 1
+    HEARTS = 2
+    CLUBS = 3
+    DIAMONDS = 4
+
+    def __repr__(self) -> str:
+        return f"{self.name.title()}"
+
+class PlayingCard:
+    """
+    A single playing card from a 52 card deck.
+    """
+    def __init__(self, rank: Rank, suit: Suit) -> None:
+        self.suit = suit
+        self.rank = rank
+    
+    def __repr__(self) -> str:
+        return f"{self.rank} of {self.suit}"
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, PlayingCard):
+            return self.rank == value.rank
+        return NotImplemented
+    def __lt__(self, value: object) -> bool:
+        if isinstance(value, PlayingCard):
+            return self.rank.value < value.rank.value
+        return NotImplemented
