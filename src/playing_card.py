@@ -36,10 +36,16 @@ class Suit(Enum):
 class PlayingCard:
     """
     A single playing card from a 52 card deck.
+    
+    Attributes:
+        rank (Rank): The rank of the card.
+        suit (Suit): The suit of the card.
+        value (Literal [1 - 13]): The value of the card, if 1 is Ace.
     """
     def __init__(self, rank: Rank, suit: Suit) -> None:
         self.suit = suit
         self.rank = rank
+        self.value = rank.value
     
     def __repr__(self) -> str:
         return f"{self.rank} of {self.suit}"

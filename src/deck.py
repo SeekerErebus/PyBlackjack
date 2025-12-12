@@ -1,3 +1,4 @@
+import random
 from .playing_card import PlayingCard, Rank, Suit
 
 
@@ -15,7 +16,7 @@ class Deck:
         """
         Shuffles the current deck. Does not require the deck to be full.
         """
-        pass
+        random.shuffle(self.cards)
     def resetDeck(self) -> None:
         """
         Resets the Deck, which restores it to max capacity of 52 cards and shuffles the deck.
@@ -38,8 +39,11 @@ class Deck:
         if len(self.cards) < count:
             self.resetDeck()
         if count == 1:
-            return self.cards.pop()
+            result = self.cards.pop()
+            self.shuffle()
+            return result
         out_cards: list[PlayingCard] = []
         for _ in range(count):
             out_cards.append(self.cards.pop())
+        self.shuffle()
         return out_cards
