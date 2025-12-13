@@ -1,18 +1,59 @@
+class Transaction:
+    def __init__(self, name: str, amount: float | int, invoice_num: int) -> None:
+        self.name = name
+        self.value = float(amount)
+        self.invoice_num = invoice_num
+
 class Bank:
+    """
+    The finances of the player or the dealer. Maintains a transaction history as well as balance. 
+    
+    Attributes:
+        balance (float): The current bank balance.
+    """
     def __init__(self, balance: float | int = 0.0) -> None:
-        self.__balance: float = float(balance)
+        """
+        Make the bank.
+        
+        :param balance: The starting balance of the bank.
+        :type balance: float | int
+        """
+        self.__transaction_history: list[Transaction] = [Transaction("Initial Balance", float(balance), 0)]
+        self.balance = self.__refresh_balance()
     
-    def check_balance(self) -> float:
-        return self.__balance
+    def add_transaction(self, name: str, amount: float | int) -> None:
+        """
+        Adds a transaction and adjusts the bank balance accordingly.
+        
+        :param name: The transaction name.
+        :type name: str
+        :param amount: The amount of money in the transaction. Negative numbers decrease balance, positive increase.
+        :type amount: float | int
+        """
+        invoice_num = len(self.__transaction_history)
+        self.__transaction_history.append(Transaction(name=name, amount=amount, invoice_num=invoice_num))
+        self.balance += float(amount)
+
+    def __refresh_balance(self) -> float:
+        return float(sum(t.value for t in self.__transaction_history))
     
-    def receive_payout(self, amount: float | int) -> float:
-        if amount < 0:
-            raise ValueError("Can't receive a negative payout.")
-        self.__balance += amount
-        return self.__balance
+    def refresh(self) -> None:
+        """
+        Forces a refresh of the bank balance based on the entire transaction history.
+        """
+        self.balance = self.__refresh_balance()
     
-    def charge_account(self, amount: float | int) -> float:
-        if amount < 0:
-            raise ValueError("Can't be charged a negative amount.")
-        self.__balance -= amount
-        return self.__balance
+    def get_history(self, count: int = 1, get_all: bool = False) -> list[Transaction]:
+        """
+        Returns the bank's transaction history. Last-in-first-out.
+        
+        :param count: The number of entries from the history to return. Overridden by get_all if True.
+        :type count: int
+        :param get_all: A flag to return the entire history.
+        :type get_all: bool
+        :return: The requested history, be it count or all.
+        :rtype: list[Transaction]
+        """
+        if get_all:
+            return self.__transaction_history
+        return self.__transaction_history[-count:]

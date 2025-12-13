@@ -3,6 +3,9 @@ from .playing_card import PlayingCard, Rank, Suit
 
 
 class Deck:
+    """
+    A 52 card playing deck. Actually maintains all the cards in the deck, so card counting is completely possible.
+    """
     def __init__(self) -> None:
         self.cards: list[PlayingCard] = []
         self.__card_set: set[PlayingCard] = set()
@@ -12,6 +15,7 @@ class Deck:
                 self.cards.append(card)
                 self.__card_set.add(card)
         self.shuffle()
+        self.__deck_refresh_percent = 0.2
     def shuffle(self) -> None:
         """
         Shuffles the current deck. Does not require the deck to be full.
@@ -36,7 +40,8 @@ class Deck:
             raise ValueError("Can't draw less than one card")
         if count > len(self.__card_set):
             raise ValueError("Can't draw more cards than the deck can hold at max.")
-        if len(self.cards) < count:
+        current_deck_percentage = len(self.cards) / len(self.__card_set)
+        if current_deck_percentage <= self.__deck_refresh_percent or len(self.cards) < count:
             self.resetDeck()
         if count == 1:
             result = self.cards.pop()

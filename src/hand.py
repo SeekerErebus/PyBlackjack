@@ -2,6 +2,9 @@ from .playing_card import PlayingCard, Rank
 
 
 class Hand:
+    """
+    A blackjack hand. Add cards to hand, track the value of the hand.
+    """
     def __init__(self, starting_cards: list[PlayingCard]) -> None:
         self.cards: list[PlayingCard] = starting_cards
         self.__ace_active_count: int = 0
