@@ -40,20 +40,12 @@ class PlayingCard:
     Attributes:
         rank (Rank): The rank of the card.
         suit (Suit): The suit of the card.
-        value (Literal [1 - 13]): The value of the card, if 1 is Ace.
+        value (Literal [1 - 10]): The value of the card, Ace is 1, Face card is 10.
     """
     def __init__(self, rank: Rank, suit: Suit) -> None:
         self.suit = suit
         self.rank = rank
-        self.value = rank.value
-    
+        self.value = 10 if rank.value > 10 else rank.value
+
     def __repr__(self) -> str:
         return f"{self.rank} of {self.suit}"
-    def __eq__(self, value: object) -> bool:
-        if isinstance(value, PlayingCard):
-            return self.rank == value.rank
-        return NotImplemented
-    def __lt__(self, value: object) -> bool:
-        if isinstance(value, PlayingCard):
-            return self.rank.value < value.rank.value
-        return NotImplemented

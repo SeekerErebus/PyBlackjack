@@ -6,7 +6,7 @@ class Transaction:
 
 class Bank:
     """
-    The finances of the player or the dealer. Maintains a transaction history as well as balance. 
+    A finance handler, useable as the balance for both player and dealer, and for the current bet in each hand.
     
     Attributes:
         balance (float): The current bank balance.
@@ -19,7 +19,7 @@ class Bank:
         :type balance: float | int
         """
         self.__transaction_history: list[Transaction] = [Transaction("Initial Balance", float(balance), 0)]
-        self.balance = self.__refresh_balance()
+        self.balance = self._refresh_balance()
     
     def add_transaction(self, name: str, amount: float | int) -> None:
         """
@@ -34,14 +34,14 @@ class Bank:
         self.__transaction_history.append(Transaction(name=name, amount=amount, invoice_num=invoice_num))
         self.balance += float(amount)
 
-    def __refresh_balance(self) -> float:
+    def _refresh_balance(self) -> float:
         return float(sum(t.value for t in self.__transaction_history))
     
     def refresh(self) -> None:
         """
         Forces a refresh of the bank balance based on the entire transaction history.
         """
-        self.balance = self.__refresh_balance()
+        self.balance = self._refresh_balance()
     
     def get_history(self, count: int = 1, get_all: bool = False) -> list[Transaction]:
         """
