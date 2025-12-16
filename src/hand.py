@@ -50,6 +50,11 @@ class Hand:
 
         return self.get_hand_value()
     
+    def double_down(self, card: PlayingCard) -> int:
+        self.update_bet("Double Down", self.bet.balance)
+        result = self.add_card(card=card)
+        return result
+    
     def _update_ace_count(self, cards: list[PlayingCard]) -> None:
         self._ace_active_count = 0
         for card in cards:
