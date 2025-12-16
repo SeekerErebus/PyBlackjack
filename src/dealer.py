@@ -7,5 +7,4 @@ from .deck import Deck
 DEALER_BANK = 100000
 
 class Dealer(Actor):
-    def __init__(self, name: str = "Dealer", starting_balance: float | int = DEALER_BANK) -> None:
-        super().__init__(name, starting_balance)
+    pass

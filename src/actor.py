@@ -11,8 +11,3 @@ class Actor:
     
     def start_hand(self, starting_cards: list[PlayingCard], bet_value: float | int = 0) -> None:
         self.hand = Hand(starting_cards=starting_cards, bet_value=bet_value)
-    
-    def hit(self, deck: Deck, double_down: bool = False) -> int:
-        if double_down:
-            self.hand.bet.add_transaction("Double Down", self.hand.bet.balance)
-        return self.hand.add_card(deck.drawCard())
