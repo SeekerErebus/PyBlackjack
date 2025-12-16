@@ -12,6 +12,7 @@ class Hand:
         self._update_ace_count(self.cards)
         self.hand_value = self.get_hand_value()
         self.bet = Bank(bet_value)
+        self.insurance = Bank()
     
     def get_hand_value(self) -> int:
         """
