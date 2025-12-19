@@ -9,8 +9,9 @@ class Hand:
     def __init__(self, starting_cards: list[PlayingCard], bet_value: float | int = 0) -> None:
         self.cards: list[PlayingCard] = starting_cards
         self._ace_active_count: int = 0
-        self._update_ace_count(self.cards)
+        self._update_ace_count()
         self.hand_value = self.get_hand_value()
+        self.has_blackjack = False
         self.bet = Bank(bet_value)
         self.insurance = Bank()
     
@@ -31,7 +32,17 @@ class Hand:
         self.hand_value = current_value
         return self.hand_value
     
-    def update_bet(self, name: str, amount: float | int) -> float:
+    def add_bet(self, name: str, amount: float | int) -> float:
+        """
+        Adds the amount to the bet
+        
+        :param name: Name of the Transaction
+        :type name: str
+        :param amount: The value of the transaction
+        :type amount: float | int
+        :return: The new balance of the bet.
+        :rtype: float
+        """
         if amount != 0:
             self.bet.add_transaction(name=name, amount=amount)
         return self.bet.balance
@@ -46,17 +57,25 @@ class Hand:
         :rtype: int
         """
         self.cards.append(card)
-        self._update_ace_count(self.cards)
+        self._update_ace_count()
 
         return self.get_hand_value()
     
     def double_down(self, card: PlayingCard) -> int:
-        self.update_bet("Double Down", self.bet.balance)
+        """
+        Doubles the bet for the hand and adds the drawn card.
+        
+        :param card: The card to add.
+        :type card: PlayingCard
+        :return: The new hand value after the card is added.
+        :rtype: int
+        """
+        self.add_bet("Double Down", self.bet.balance)
         result = self.add_card(card=card)
         return result
     
-    def _update_ace_count(self, cards: list[PlayingCard]) -> None:
+    def _update_ace_count(self) -> None:
         self._ace_active_count = 0
-        for card in cards:
+        for card in self.cards:
             if card.rank == Rank.ACE:
                 self._ace_active_count += 1

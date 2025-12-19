@@ -25,6 +25,10 @@ Settling Bets:
 
 from .hand import Hand
 from .bank import Bank
+from .dealer import Dealer
+from .player import Player
+from .playing_card import PlayingCard
+from .deck import Deck
 from enum import Enum
 
 BLACKJACK_PAYOUT = 3 / 2
@@ -37,21 +41,25 @@ class RoundResults(Enum):
     PLAYER_WON_BLACKJACK = 3
     PUSH = 4
 
-def determine_winner(dealer: Hand, player: Hand, dealer_blackjack: bool = False, player_blackjack: bool = False) -> RoundResults:
+def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: bool = False, player_blackjack: bool = False) -> RoundResults:
     """
     Determines the winner of the round based on the dealer and player's hands. 
     
-    :param dealer: Dealer's hand.
-    :type dealer: Hand
-    :param player: Player's hand.
-    :type player: Hand
-    :return: True if the player won, False if the dealer won.
-    :rtype: bool
+    :param dealer_hand: The Dealer's hand
+    :type dealer_hand: Hand
+    :param player_hand: The Player's hand
+    :type player_hand: Hand
+    :param dealer_blackjack: Whether the Dealer had a blackjack.
+    :type dealer_blackjack: bool
+    :param player_blackjack: Whether the player had a blackjack.
+    :type player_blackjack: bool
+    :return: The result of the round.
+    :rtype: RoundResults
     """
     if dealer_blackjack and not player_blackjack:
         return RoundResults.DEALER_WON
-    dealer_result = dealer.get_hand_value()
-    player_result = player.get_hand_value()
+    dealer_result = dealer_hand.get_hand_value()
+    player_result = player_hand.get_hand_value()
     if player_result > dealer_result and player_blackjack:
         return RoundResults.PLAYER_WON_BLACKJACK
     elif player_result > dealer_result:
@@ -60,24 +68,85 @@ def determine_winner(dealer: Hand, player: Hand, dealer_blackjack: bool = False,
         return RoundResults.DEALER_WON
     return RoundResults.PUSH
     
-def settle_bets(dealer: Bank, player: Bank, pot: Bank, results: RoundResults) -> None:
+def settle_bets(dealer: Player, player: Player, pot: Bank, results: RoundResults) -> None:
+    """
+    Settles the bet between the bank and the player, adjusting bank balances accordingly.
+    
+    :param dealer_bank: The Dealer's bank
+    :type dealer_bank: Bank
+    :param player_bank: The Player's bank
+    :type player_bank: Bank
+    :param pot: The bet
+    :type pot: Bank
+    :param results: Who won the round and how.
+    :type results: RoundResults
+    """
     pot.refresh()
+    bet = pot.balance
     match results:
         case RoundResults.DEALER_WON:
-            dealer.add_transaction("Won Round", pot.balance)
+            dealer.bank.add_transaction("Won Round", bet)
         case RoundResults.PLAYER_WON:
-            dealer.add_transaction("Lost Round", -pot.balance * STANDARD_PAYOUT)
-            player.add_transaction("Won Round", pot.balance * STANDARD_PAYOUT)
+            dealer.bank.add_transaction("Lost Round", -bet * STANDARD_PAYOUT)
+            player.bank.add_transaction("Won Round", bet * STANDARD_PAYOUT)
         case RoundResults.PLAYER_WON_BLACKJACK:
-            dealer.add_transaction("Lost Round", -pot.balance * BLACKJACK_PAYOUT)
-            player.add_transaction("Won Round", pot.balance * BLACKJACK_PAYOUT)
+            dealer.bank.add_transaction("Lost Round", -bet * BLACKJACK_PAYOUT)
+            player.bank.add_transaction("Won Round", bet * BLACKJACK_PAYOUT)
         case RoundResults.PUSH:
-            player.add_transaction("Pushed Round", pot.balance)
+            player.bank.add_transaction("Pushed Round", bet)
+    dealer.history.add_round(results, bet)
+    player.history.add_round(results, bet)
 
-def settle_insurance(dealer: Bank, player: Bank, pot: Bank, dealer_blackjack: bool) -> None:
+def settle_insurance(dealer: Dealer, player: Player, pot: Bank, dealer_blackjack: bool) -> None:
+    """
+    Settles insurance payouts when Insurance is used.
+    
+    :param dealer_bank: The Dealer's bank
+    :type dealer_bank: Bank
+    :param player_bank: The Player's bank
+    :type player_bank: Bank
+    :param pot: The bet
+    :type pot: Bank
+    :param dealer_blackjack: Whether the dealer got a blackjack and thus insurance is owed.
+    :type dealer_blackjack: bool
+    """
     pot.refresh()
     if dealer_blackjack:
-        dealer.add_transaction("Insurance Payout", -pot.balance * INSURANCE_PAYOUT)
-        player.add_transaction("Insurance Payout", pot.balance * INSURANCE_PAYOUT)
+        dealer.bank.add_transaction("Insurance Payout", -pot.balance * INSURANCE_PAYOUT)
+        player.bank.add_transaction("Insurance Payout", pot.balance * INSURANCE_PAYOUT)
     else:
-        dealer.add_transaction("Insurance Payout", pot.balance)
+        dealer.bank.add_transaction("Insurance Payout", pot.balance)
+
+def start_round(dealer: Dealer, player: Player, deck: Deck, bet_value: float | int) -> None:
+    """
+    Starts a round of blackjack.
+    
+    :param dealer: The Dealer
+    :type dealer: Dealer
+    :param player: The Player
+    :type player: Player
+    :param deck: The Deck
+    :type deck: Deck
+    :param bet_value: The value of the bet.
+    :type bet_value: float | int
+    """
+    dealer.reset_hand()
+    player.reset_hand()
+    player_hand: list[PlayingCard] = []
+    dealer_hand: list[PlayingCard] = []
+    for _ in range(2):
+        player_hand.append(deck.drawCard())
+        dealer_hand.append(deck.drawCard())
+    dealer.start_hand(dealer_hand, bet_value)
+    player.start_hand(player_hand, bet_value)
+    if dealer.hand.get_hand_value() == 21:
+        dealer.hand.has_blackjack = True
+    if player.hand.get_hand_value() == 21:
+        player.hand.has_blackjack = True
+
+def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
+    if dealer.hand.has_blackjack == True:
+        return dealer.hand.get_hand_value()
+    while dealer.hand.get_hand_value() < 17:
+        dealer.hand.add_card(deck.drawCard())
+    return dealer.hand.get_hand_value()

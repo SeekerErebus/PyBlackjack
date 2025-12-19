@@ -1,3 +1,5 @@
+import copy
+
 class Transaction:
     def __init__(self, name: str, amount: float | int, invoice_num: int) -> None:
         self.name = name
@@ -57,3 +59,27 @@ class Bank:
         if get_all:
             return self.__transaction_history
         return self.__transaction_history[-count:]
+    
+    def build_new_transaction_record(self, all_transactions: list[list[Transaction]]) -> None:
+        """
+        Takes a list of multiple bank transaction records, merges them together, replaces the Bank's transaction record with the merged record, and updates the Bank.
+        
+        :param all_transactions: The list of multiple bank transaction records.
+        :type all_transactions: list[list[Transaction]]
+        """
+        new_transaction_history: list[Transaction] = []
+
+        first_initial = True
+        invoice_num = 0
+        for transact_list in all_transactions:
+            for transaction in transact_list:
+                new_transaction: Transaction = copy.deepcopy(transaction)
+                if transaction.name == "Initial Balance" and first_initial:
+                    first_initial = False
+                elif transaction.name == "Initial Balance" and not first_initial:
+                    new_transaction.name = "Merged Balance Initial"
+                new_transaction.invoice_num = invoice_num
+                invoice_num += 1
+                new_transaction_history.append(new_transaction)
+        self.__transaction_history = new_transaction_history
+        self.refresh()
