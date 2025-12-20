@@ -37,7 +37,9 @@ class Actor:
         """
         self.name = name
         self.bank = Bank(balance=starting_balance)
-        self.hand: Hand = Hand([])
+        self.split_hands: list[Hand] = [Hand([])]
+        self.current_hand_index: int = 0
+        self.hand: Hand = self.split_hands[self.current_hand_index]
         self.history = RoundHistory()
 
     def reset_hand(self) -> None:

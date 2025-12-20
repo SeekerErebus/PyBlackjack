@@ -27,19 +27,17 @@ class Player(Actor):
         :type starting_balance: float | int
         """
         super().__init__(name, starting_balance)
-        self.split_hands: list[Hand] = [self.hand]
-        self.current_hand_index: int = 0
-    
-    def swap_current_hand(self, new_index: int) -> None:
-        try:
-            self.hand = self.split_hands[new_index]
-            self.current_hand_index = new_index
-        except IndexError as e:
-            return
-
     
     def hit(self, card: PlayingCard) -> int:
         return self.hand.add_card(card)
     
     def double_down(self, card: PlayingCard) -> int:
         return self.hand.double_down(card)
+    
+    def split(self, cards: list[PlayingCard], hand_to_split: Hand):
+        if len(cards) != 2:
+            raise ValueError("Need two cards to split correctly.")
+        split_hand_one = Hand([hand_to_split.cards[0], cards[0]], hand_to_split.bet.balance)
+        split_hand_two = Hand([hand_to_split.cards[1], cards[1]], hand_to_split.bet.balance)
+
+        hand_index = self.split_hands.index(hand_to_split)
