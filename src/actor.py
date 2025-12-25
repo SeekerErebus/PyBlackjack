@@ -2,7 +2,6 @@ from .bank import Bank
 from .playing_card import PlayingCard
 from .hand import Hand
 from .blackjack import RoundResults
-from enum import Enum
 from dataclasses import dataclass
 
 
@@ -58,3 +57,20 @@ class Actor:
         :type bet_value: float | int
         """
         self.hand = Hand(starting_cards=starting_cards, bet_value=bet_value)
+    
+    def __update_hand(self, new_index: int | None = None) -> bool:
+        """
+        Updates the hand pointer.
+        
+        :param new_index: The replacement index. If not used, defaults to self.current_hand_index
+        :type new_index: int | None
+        :return: True if successful, False if bad index
+        :rtype: bool
+        """
+        if new_index is None:
+            new_index = self.current_hand_index
+        if new_index >= 0 and new_index < len(self.split_hands):
+            self.current_hand_index = new_index
+            self.hand = self.split_hands[self.current_hand_index]
+            return True
+        return False

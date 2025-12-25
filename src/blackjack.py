@@ -145,6 +145,16 @@ def start_round(dealer: Dealer, player: Player, deck: Deck, bet_value: float | i
         player.hand.has_blackjack = True
 
 def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
+    """
+    Runs the dealer's turn. 
+    
+    :param dealer: The Dealer
+    :type dealer: Dealer
+    :param deck: The Deck
+    :type deck: Deck
+    :return: The final hand value.
+    :rtype: int
+    """
     if dealer.hand.has_blackjack == True:
         return dealer.hand.get_hand_value()
     while dealer.hand.get_hand_value() < 17:
