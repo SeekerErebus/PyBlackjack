@@ -1,18 +1,10 @@
 from .playing_card import PlayingCard
+from .blackjack import PossibleActions
 
 NUMBER_ERROR_STRING = "Please enter a valid number."
 OVER_BALANCE_STRING = "You don't have enough chips."
 
 class CLIInputProcessor:
-    
-    ACTION_ABBREVS = {
-        'h': 'hit',
-        's': 'stand',
-        'd': 'double',
-        'dd': 'double',
-        'sp': 'split',
-        'sur': 'surrender',
-    }
     def prompt_bet(self, balance: float, min_bet: float | int = 1.0) -> float:
         while True:
             print(f"\nYour current balance: {balance} chips.")
@@ -58,6 +50,48 @@ class CLIInputProcessor:
             self,
             player_hand_value: int,
             player_cards: list[PlayingCard],
-            dealer_upcard: PlayingCard
-    ):
-        pass
+            dealer_upcard: PlayingCard,
+            allowed_actions: set[PossibleActions]
+    ) -> PossibleActions:
+        valid_options: list[str] = []
+        display_options: list[str] = []
+        for action in allowed_actions:
+            match action:
+                case PossibleActions.HIT:
+                    valid_options.extend(['h'])
+                    display_options.append("h = Hit")
+                case PossibleActions.STAND:
+                    valid_options.extend(['s'])
+                    display_options.append("s = Stand")
+                case PossibleActions.DOUBLE:
+                    valid_options.extend(['d', 'dd'])
+                    display_options.append("d/dd = Double Down")
+                case PossibleActions.SPLIT:
+                    valid_options.extend(['sp', 'split'])
+                    display_options.append("sp/split = Split")
+        
+        card_string = f''
+        for card in player_cards:
+            card_string += f"{card}, "
+        card_string.removesuffix(', ')
+        print(f"\nYour hand ({player_hand_value}): {card_string}")
+        print(f"Dealer upcard: {dealer_upcard}")
+        print(f"Options: " + ', '.join(display_options))
+
+        while True:
+            raw = input("Your move: ").strip().lower()
+            result: PossibleActions
+            if raw in valid_options:
+                for option in valid_options:
+                    match option:
+                        case 'h':
+                            result = PossibleActions.HIT
+                        case 's':
+                            result = PossibleActions.STAND
+                        case 'd' | 'dd':
+                            result = PossibleActions.DOUBLE
+                        case 'sp' | 'split':
+                            result = PossibleActions.SPLIT
+                return result # type: ignore
+            else:
+                print("Invalid input. Use one of the listed options.")

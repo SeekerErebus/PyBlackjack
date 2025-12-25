@@ -36,10 +36,22 @@ STANDARD_PAYOUT = 1
 INSURANCE_PAYOUT = 2
 
 class RoundResults(Enum):
+    """
+    Enum of Possible Round End States
+    """
     DEALER_WON = 1
     PLAYER_WON = 2
     PLAYER_WON_BLACKJACK = 3
     PUSH = 4
+
+class PossibleActions(Enum):
+    """
+    Enum of Actions that can be taken by the player.
+    """
+    HIT = "hit"
+    STAND = "stand"
+    DOUBLE = "double"
+    SPLIT = "split"
 
 def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: bool = False, player_blackjack: bool = False) -> RoundResults:
     """
