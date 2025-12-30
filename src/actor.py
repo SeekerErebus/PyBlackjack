@@ -45,7 +45,9 @@ class Actor:
         """
         Reset the hand to nothing.
         """
-        self.hand = Hand([])
+        self.split_hands = [Hand([])]
+        self.current_hand_index = 0
+        self.hand = self.split_hands[self.current_hand_index]
     
     def start_hand(self, starting_cards: list[PlayingCard], bet_value: float | int = 0) -> None:
         """

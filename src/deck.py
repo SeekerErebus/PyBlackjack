@@ -22,8 +22,19 @@ class Deck:
         Shuffles the current deck. Does not require the deck to be full.
         """
         random.shuffle(self.cards)
+    def get_deck_percentage(self) -> float:
+        """
+        Get the percentage of cards remaining in the deck.
+
+        :return: The percentage.
+        :rtype: float
+        """
+        return len(self.cards) / len(self._card_set)
     def confirm_deck_health(self) -> None:
-        if len(self.cards) / len(self._card_set) <= self._deck_refresh_percent:
+        """
+        Checks the deck, resets it if needed.
+        """
+        if self.get_deck_percentage() <= self._deck_refresh_percent:
             self._resetDeck()
     def get_remaining_cards(self) -> int:
         return len(self.cards)

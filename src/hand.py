@@ -13,6 +13,7 @@ class Hand:
         self.hand_value = self.get_hand_value()
         self.has_blackjack = False
         self.has_stood = False
+        self.has_busted = False
         self.bet = Bank(bet_value)
         self.insurance = Bank()
     

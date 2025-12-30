@@ -25,7 +25,7 @@ class Player(Actor):
         :type starting_balance: float | int
         """
         super().__init__(name, starting_balance)
-    
+
     def hit(self, card: PlayingCard) -> int:
         """
         Hits the hand.

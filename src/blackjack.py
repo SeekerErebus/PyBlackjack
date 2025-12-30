@@ -71,7 +71,11 @@ def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: boo
     if dealer_blackjack and not player_blackjack:
         return RoundResults.DEALER_WON
     dealer_result = dealer_hand.get_hand_value()
+    if dealer_result > 21:
+        dealer_result = -1
     player_result = player_hand.get_hand_value()
+    if player_result > 21:
+        player_result = -1
     if player_result > dealer_result and player_blackjack:
         return RoundResults.PLAYER_WON_BLACKJACK
     elif player_result > dealer_result:
@@ -171,4 +175,6 @@ def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
         return dealer.hand.get_hand_value()
     while dealer.hand.get_hand_value() < 17:
         dealer.hand.add_card(deck.drawCard())
+    if dealer.hand.get_hand_value() > 21:
+        dealer.hand.has_busted = True
     return dealer.hand.get_hand_value()

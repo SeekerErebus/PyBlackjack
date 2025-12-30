@@ -1,0 +1,52 @@
+from .hand import Hand
+from .deck import Deck
+from .dealer import Dealer
+from .player import Player
+from .actor import Actor
+from .playing_card import PlayingCard
+
+
+def get_hand_str(hand: Hand) -> str:
+    result_str = f''
+    delimiter = ", "
+    for card in hand.cards:
+        result_str += repr(card) + delimiter
+    result_str += f"Value: {hand.get_hand_value()}"
+    return result_str
+
+def print_bank_balance(actor: Actor) -> None:
+    bank = actor.bank
+    bank.refresh()
+    print(f"{actor.name} bank balance is: {bank.balance:,.2f}")
+
+def show_round_start(dealer: Dealer, player: Player, deck: Deck) -> None:
+    output_str = f"\nDealer Card is: {dealer.get_visible_card()}\n"
+    output_str += f"Player Hand is: {get_hand_str(player.hand)}\n\n"
+    output_str += f"Deck has {deck.get_deck_percentage():.0%} remaining cards.\n"
+    print(output_str)
+
+def show_player_hand(player: Player) -> None:
+    total_hands = len(player.split_hands)
+    output_str = f""
+    if total_hands > 1:
+        for i in range(total_hands):
+            current_hand = player.split_hands[i]
+            output_str += f"Player Hand #{i + 1}: {get_hand_str(current_hand)}\n"
+            if i == player.current_hand_index:
+                output_str += f"Status: Active"
+            elif current_hand.has_stood:
+                output_str += f"Status: Stood"
+            elif current_hand.has_busted:
+                output_str += f"Status: Busted"
+            else:
+                output_str += f"Status: Waiting"
+            output_str += f"\n\n"
+    else:
+        output_str += f"Player Hand is: {get_hand_str(player.hand)}\n"
+    print(output_str)
+
+def print_new_card(card: PlayingCard, whose_card: str) -> None:
+    print(f"{whose_card} added {card}.")
+
+def print_dealer_card(dealer: Dealer) -> None:
+    print(f"Dealer Upcard is: {dealer.get_visible_card()}")
