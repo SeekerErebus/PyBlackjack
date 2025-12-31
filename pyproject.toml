@@ -1,7 +1,11 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pyblackjack"
 version = "0.1.0"
-description = "Add your description here"
+description = "A CLI Blackjack Game played against the dealer."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []

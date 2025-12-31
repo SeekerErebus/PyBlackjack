@@ -1,12 +1,12 @@
-from .playing_card import PlayingCard
 from .blackjack import PossibleActions
 
+
 NUMBER_ERROR_STRING = "Please enter a valid number."
-OVER_BALANCE_STRING = "You don't have enough chips."
+OVER_BALANCE_STRING = "You don't have enough money."
 
 def prompt_bet(balance: float, min_bet: float | int = 1.0) -> float:
     while True:
-        print(f"\nYour current balance: {balance} chips.")
+        print(f"\nYour current balance: {balance:,.2f}.")
         try:
             raw = input(f"Place your bet (minimum {min_bet}): ").strip()
             bet = float(raw)
@@ -46,9 +46,7 @@ def prompt_insurance(balance: float, current_bet: float) -> float:
             print("Please answer y or n.")
 
 def prompt_action(
-        player_hand_value: int,
-        player_cards: list[PlayingCard],
-        dealer_upcard: PlayingCard,
+        round_state_str: str,
         allowed_actions: set[PossibleActions]
 ) -> PossibleActions:
     valid_options: list[str] = []
@@ -68,12 +66,7 @@ def prompt_action(
                 valid_options.extend(['sp', 'split'])
                 display_options.append("sp/split = Split")
     
-    card_string = f''
-    for card in player_cards:
-        card_string += f"{card}, "
-    card_string.removesuffix(', ')
-    print(f"\nYour hand ({player_hand_value}): {card_string}")
-    print(f"Dealer upcard: {dealer_upcard}")
+    print(f"{round_state_str}\n")
     print(f"Options: " + ', '.join(display_options))
 
     while True:
@@ -81,7 +74,7 @@ def prompt_action(
         result: PossibleActions
         if raw in valid_options:
             for option in valid_options:
-                match option:
+                match raw:
                     case 'h':
                         result = PossibleActions.HIT
                     case 's':

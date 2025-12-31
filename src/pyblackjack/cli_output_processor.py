@@ -20,12 +20,17 @@ def print_bank_balance(actor: Actor) -> None:
     print(f"{actor.name} bank balance is: {bank.balance:,.2f}")
 
 def show_round_start(dealer: Dealer, player: Player, deck: Deck) -> None:
-    output_str = f"\nDealer Card is: {dealer.get_visible_card()}\n"
-    output_str += f"Player Hand is: {get_hand_str(player.hand)}\n\n"
-    output_str += f"Deck has {deck.get_deck_percentage():.0%} remaining cards.\n"
-    print(output_str)
+    print(get_round_state_str(dealer, player, deck))
+    print_bank_balance(player)
+    print_bank_balance(dealer)
 
-def show_player_hand(player: Player) -> None:
+def get_round_state_str(dealer: Dealer, player: Player, deck: Deck) -> str:
+    output_str = f"\nDealer Card is: {dealer.get_visible_card()}\n"
+    output_str += get_player_hand_str(player)
+    output_str += f"Deck has {deck.get_deck_percentage():.0%} remaining cards.\n"
+    return output_str
+
+def get_player_hand_str(player: Player) -> str:
     total_hands = len(player.split_hands)
     output_str = f""
     if total_hands > 1:
@@ -43,10 +48,7 @@ def show_player_hand(player: Player) -> None:
             output_str += f"\n\n"
     else:
         output_str += f"Player Hand is: {get_hand_str(player.hand)}\n"
-    print(output_str)
+    return output_str
 
 def print_new_card(card: PlayingCard, whose_card: str) -> None:
     print(f"{whose_card} added {card}.")
-
-def print_dealer_card(dealer: Dealer) -> None:
-    print(f"Dealer Upcard is: {dealer.get_visible_card()}")
