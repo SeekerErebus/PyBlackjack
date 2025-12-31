@@ -20,12 +20,12 @@ def print_bank_balance(actor: Actor) -> None:
     print(f"{actor.name} bank balance is: {bank.balance:,.2f}")
 
 def show_round_start(dealer: Dealer, player: Player, deck: Deck) -> None:
-    print(get_round_state_str(dealer, player, deck))
+    print(get_round_state_str(dealer.get_visible_card(), player, deck))
     print_bank_balance(player)
     print_bank_balance(dealer)
 
-def get_round_state_str(dealer: Dealer, player: Player, deck: Deck) -> str:
-    output_str = f"\nDealer Card is: {dealer.get_visible_card()}\n"
+def get_round_state_str(dealer_upcard: PlayingCard, player: Player, deck: Deck) -> str:
+    output_str = f"\nDealer Card is: {dealer_upcard}\n"
     output_str += get_player_hand_str(player)
     output_str += f"Deck has {deck.get_deck_percentage():.0%} remaining cards.\n"
     return output_str
@@ -39,10 +39,10 @@ def get_player_hand_str(player: Player) -> str:
             output_str += f"Player Hand #{i + 1}: {get_hand_str(current_hand)}\n"
             if i == player.current_hand_index:
                 output_str += f"Status: Active"
-            elif current_hand.has_stood:
-                output_str += f"Status: Stood"
             elif current_hand.has_busted:
                 output_str += f"Status: Busted"
+            elif current_hand.has_stood:
+                output_str += f"Status: Stood"
             else:
                 output_str += f"Status: Waiting"
             output_str += f"\n\n"

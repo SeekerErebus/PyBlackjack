@@ -29,6 +29,7 @@ from .dealer import Dealer
 from .player import Player
 from .playing_card import PlayingCard
 from .deck import Deck
+from .cli_output_processor import print_new_card
 from enum import Enum
 
 BLACKJACK_PAYOUT = 3 / 2
@@ -71,10 +72,10 @@ def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: boo
     if dealer_blackjack and not player_blackjack:
         return RoundResults.DEALER_WON
     dealer_result = dealer_hand.get_hand_value()
-    if dealer_result > 21:
+    if dealer_hand.has_busted:
         dealer_result = -1
     player_result = player_hand.get_hand_value()
-    if player_result > 21:
+    if player_hand.has_busted:
         player_result = -1
     if player_result > dealer_result and player_blackjack:
         return RoundResults.PLAYER_WON_BLACKJACK
@@ -84,7 +85,7 @@ def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: boo
         return RoundResults.DEALER_WON
     return RoundResults.PUSH
     
-def settle_bets(dealer: Player, player: Player, pot: Bank, results: RoundResults) -> None:
+def settle_bets(dealer: Player, player: Player, bet: float, results: RoundResults) -> None:
     """
     Settles the bet between the bank and the player, adjusting bank balances accordingly.
     
@@ -92,13 +93,11 @@ def settle_bets(dealer: Player, player: Player, pot: Bank, results: RoundResults
     :type dealer_bank: Bank
     :param player_bank: The Player's bank
     :type player_bank: Bank
-    :param pot: The bet
-    :type pot: Bank
+    :param bet: The bet
+    :type bet: float
     :param results: Who won the round and how.
     :type results: RoundResults
     """
-    pot.refresh()
-    bet = pot.balance
     match results:
         case RoundResults.DEALER_WON:
             dealer.bank.add_transaction("Won Round", bet)
@@ -113,7 +112,7 @@ def settle_bets(dealer: Player, player: Player, pot: Bank, results: RoundResults
     dealer.history.add_round(results, bet)
     player.history.add_round(results, bet)
 
-def settle_insurance(dealer: Dealer, player: Player, pot: Bank, dealer_blackjack: bool) -> None:
+def settle_insurance(dealer: Dealer, player: Player, insurance: float, dealer_blackjack: bool) -> None:
     """
     Settles insurance payouts when Insurance is used.
     
@@ -121,17 +120,18 @@ def settle_insurance(dealer: Dealer, player: Player, pot: Bank, dealer_blackjack
     :type dealer_bank: Bank
     :param player_bank: The Player's bank
     :type player_bank: Bank
-    :param pot: The bet
-    :type pot: Bank
+    :param insurance: The insurance bet
+    :type insurance: float
     :param dealer_blackjack: Whether the dealer got a blackjack and thus insurance is owed.
     :type dealer_blackjack: bool
     """
-    pot.refresh()
+    if insurance <= 0:
+        return
     if dealer_blackjack:
-        dealer.bank.add_transaction("Insurance Payout", -pot.balance * INSURANCE_PAYOUT)
-        player.bank.add_transaction("Insurance Payout", pot.balance * INSURANCE_PAYOUT)
+        dealer.bank.add_transaction("Insurance Payout", -insurance * INSURANCE_PAYOUT)
+        player.bank.add_transaction("Insurance Payout", insurance * INSURANCE_PAYOUT)
     else:
-        dealer.bank.add_transaction("Insurance Payout", pot.balance)
+        dealer.bank.add_transaction("Insurance Payout", insurance)
 
 def start_round(dealer: Dealer, player: Player, deck: Deck, bet_value: float | int) -> None:
     """
@@ -159,6 +159,7 @@ def start_round(dealer: Dealer, player: Player, deck: Deck, bet_value: float | i
         dealer.hand.has_blackjack = True
     if player.hand.get_hand_value() == 21:
         player.hand.has_blackjack = True
+        player.hand.has_stood = True
 
 def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
     """
@@ -174,7 +175,8 @@ def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
     if dealer.hand.has_blackjack == True:
         return dealer.hand.get_hand_value()
     while dealer.hand.get_hand_value() < 17:
-        dealer.hand.add_card(deck.drawCard())
-    if dealer.hand.get_hand_value() > 21:
-        dealer.hand.has_busted = True
+        new_card = deck.drawCard()
+        print_new_card(new_card, dealer.name)
+        dealer.hand.add_card(new_card)
+    dealer.hand.has_stood = True
     return dealer.hand.get_hand_value()

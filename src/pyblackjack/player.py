@@ -2,7 +2,6 @@ from .actor import Actor
 from .playing_card import PlayingCard
 from .hand import Hand
 from . import constants
-import copy
 
 
 class Player(Actor):
@@ -47,7 +46,6 @@ class Player(Actor):
         :rtype: int
         """
         result = self.hand.double_down(card)
-        self.hand.has_stood = True
         return result
     
     def split(self, cards: list[PlayingCard]) -> None:

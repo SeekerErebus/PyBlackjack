@@ -60,6 +60,7 @@ class Hand:
         """
         self.cards.append(card)
         self._update_ace_count()
+        self.check_if_busted()
 
         return self.get_hand_value()
     
@@ -74,7 +75,20 @@ class Hand:
         """
         self.add_bet("Double Down", self.bet.balance)
         result = self.add_card(card=card)
+        self.has_stood = True
         return result
+    
+    def check_if_busted(self) -> bool:
+        """
+        Checks if the hand is busted, and if so, marks the proper flags.
+        
+        :return: True if busted, false otherwise.
+        :rtype: bool
+        """
+        if self.get_hand_value() > 21:
+            self.has_busted = True
+            self.has_stood = True
+        return self.has_busted
     
     def _update_ace_count(self) -> None:
         self._ace_active_count = 0

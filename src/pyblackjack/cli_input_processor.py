@@ -1,10 +1,20 @@
 from .blackjack import PossibleActions
+from . import constants
 
 
 NUMBER_ERROR_STRING = "Please enter a valid number."
 OVER_BALANCE_STRING = "You don't have enough money."
 
-def prompt_bet(balance: float, min_bet: float | int = 1.0) -> float:
+def prompt_bet(balance: float) -> float:
+    """
+    Gets the bet placed by the player from CLI for the round.
+    
+    :param balance: The balance ie. bank.balance
+    :type balance: float
+    :return: Description
+    :rtype: float
+    """
+    min_bet = constants.MINIMUM_BET
     while True:
         print(f"\nYour current balance: {balance:,.2f}.")
         try:
@@ -20,6 +30,16 @@ def prompt_bet(balance: float, min_bet: float | int = 1.0) -> float:
             print(NUMBER_ERROR_STRING)
 
 def prompt_insurance(balance: float, current_bet: float) -> float:
+    """
+    Gets the insurance the player wishes to get on the hand. If returns 0, no insurance is purchased.
+    
+    :param balance: Player's balance
+    :type balance: float
+    :param current_bet: The bet on the hand.
+    :type current_bet: float
+    :return: The amount the player chooses to insure.
+    :rtype: float
+    """
     min_insurance = current_bet * 0.1
     if min_insurance > balance:
         print(f"Dealer shows Ace, but you cannot afford minimum insurance.")
