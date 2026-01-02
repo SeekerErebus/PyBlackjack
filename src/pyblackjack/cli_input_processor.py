@@ -106,3 +106,19 @@ def prompt_action(
             return result # type: ignore
         else:
             print("Invalid input. Use one of the listed options.")
+
+def prompt_continue_game() -> bool:
+    """
+    Checks whether the player wishes to continue playing.
+
+    :return: True if continuing, false if stopping.
+    :rtype: bool
+    """
+    while True:
+        raw = input("Continue game? (y/n): ").strip().lower()
+        if raw in ('y', 'yes'):
+            return True
+        elif raw in ('n', 'no'):
+            return False
+        else:
+            print("Please answer y or n.")

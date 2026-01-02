@@ -85,7 +85,7 @@ def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: boo
         return RoundResults.DEALER_WON
     return RoundResults.PUSH
     
-def settle_bets(dealer: Player, player: Player, bet: float, results: RoundResults) -> None:
+def settle_bets(dealer: Player, player: Player, bet: float, results: RoundResults) -> str:
     """
     Settles the bet between the bank and the player, adjusting bank balances accordingly.
     
@@ -98,19 +98,29 @@ def settle_bets(dealer: Player, player: Player, bet: float, results: RoundResult
     :param results: Who won the round and how.
     :type results: RoundResults
     """
+    output_str = f"{player.name}"
     match results:
         case RoundResults.DEALER_WON:
-            dealer.bank.add_transaction("Won Round", bet)
+            amount = bet
+            output_str += f" Lost {amount:.2f}"
+            dealer.bank.add_transaction("Won Round", amount)
+            player.bank.add_transaction("Lost Round", amount)
         case RoundResults.PLAYER_WON:
-            dealer.bank.add_transaction("Lost Round", -bet * STANDARD_PAYOUT)
-            player.bank.add_transaction("Won Round", bet * STANDARD_PAYOUT)
+            amount = bet * STANDARD_PAYOUT
+            output_str += f" Won {amount:.2f}"
+            dealer.bank.add_transaction("Lost Round", -amount)
+            player.bank.add_transaction("Won Round", amount)
         case RoundResults.PLAYER_WON_BLACKJACK:
-            dealer.bank.add_transaction("Lost Round", -bet * BLACKJACK_PAYOUT)
-            player.bank.add_transaction("Won Round", bet * BLACKJACK_PAYOUT)
+            amount = bet * BLACKJACK_PAYOUT
+            output_str += f" Won {bet:.2f}"
+            dealer.bank.add_transaction("Lost Round", -amount)
+            player.bank.add_transaction("Won Round", amount)
         case RoundResults.PUSH:
-            player.bank.add_transaction("Pushed Round", bet)
+            output_str += f" Pushed."
     dealer.history.add_round(results, bet)
     player.history.add_round(results, bet)
+    output_str += "\n"
+    return output_str
 
 def settle_insurance(dealer: Dealer, player: Player, insurance: float, dealer_blackjack: bool) -> None:
     """

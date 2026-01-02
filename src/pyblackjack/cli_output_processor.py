@@ -4,6 +4,7 @@ from .dealer import Dealer
 from .player import Player
 from .actor import Actor
 from .playing_card import PlayingCard
+from .blackjack import RoundResults
 
 
 def get_hand_str(hand: Hand) -> str:
@@ -23,6 +24,11 @@ def show_round_start(dealer: Dealer, player: Player, deck: Deck) -> None:
     print(get_round_state_str(dealer.get_visible_card(), player, deck))
     print_bank_balance(player)
     print_bank_balance(dealer)
+
+def show_end_of_round_state(dealer: Dealer, player: Player, end_state_str: str) -> None:
+    print(end_state_str)
+    print(f"Dealer Bank: {dealer.bank.balance}")
+    print(f"Player Bank: {player.bank.balance}")
 
 def get_round_state_str(dealer_upcard: PlayingCard, player: Player, deck: Deck) -> str:
     output_str = f"\nDealer Card is: {dealer_upcard}\n"

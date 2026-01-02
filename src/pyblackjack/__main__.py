@@ -3,10 +3,13 @@ from .player import Player
 from .deck import Deck
 from .playing_card import Rank
 from . import blackjack, player_turn
+from .cli_input_processor import prompt_continue_game
+from .cli_output_processor import show_end_of_round_state, show_game_end_score
 
 def main():
     deck = Deck()
     player = Player()
+    starting_player_balance = player.bank.balance
     dealer = Dealer()
 
     while (player.bank.balance > 0 and
@@ -20,12 +23,22 @@ def main():
         player_turn.player_turn(player, dealer_upcard, deck)
         blackjack.process_dealer_turn(dealer, deck)
         blackjack.settle_insurance(dealer, player, insurance, dealer.hand.has_blackjack)
+        end_state_str = f""
         for hand in player.split_hands:
             result = blackjack.determine_winner(
                 dealer_hand=dealer.hand, 
                 player_hand=hand, 
                 dealer_blackjack=dealer.hand.has_blackjack,
                 player_blackjack=hand.has_blackjack)
+            end_state_str += blackjack.settle_bets(dealer, player, hand.bet.balance, result)
+        show_end_of_round_state(dealer, player, end_state_str)
+        player.bank.refresh()
+        dealer.bank.refresh()
+        if not prompt_continue_game():
+            break
+        deck.confirm_deck_health()
+    show_game_end_score(starting_player_balance, player.bank.balance)
+    print("Thanks for Playing!")
 
 
 if __name__ == "__main__":
