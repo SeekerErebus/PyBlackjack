@@ -30,6 +30,11 @@ def show_end_of_round_state(dealer: Dealer, player: Player, end_state_str: str) 
     print(f"Dealer Bank: {dealer.bank.balance}")
     print(f"Player Bank: {player.bank.balance}")
 
+def show_game_end_score(starting_balance: float, ending_balance: float) -> None:
+    total_change = ending_balance - starting_balance
+    
+        
+
 def get_round_state_str(dealer_upcard: PlayingCard, player: Player, deck: Deck) -> str:
     output_str = f"\nDealer Card is: {dealer_upcard}\n"
     output_str += get_player_hand_str(player)

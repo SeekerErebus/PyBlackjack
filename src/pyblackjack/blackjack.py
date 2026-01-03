@@ -85,7 +85,7 @@ def determine_winner(dealer_hand: Hand, player_hand: Hand, dealer_blackjack: boo
         return RoundResults.DEALER_WON
     return RoundResults.PUSH
     
-def settle_bets(dealer: Player, player: Player, bet: float, results: RoundResults) -> str:
+def settle_bets(dealer: Dealer, player: Player, bet: float, results: RoundResults) -> str:
     """
     Settles the bet between the bank and the player, adjusting bank balances accordingly.
     
