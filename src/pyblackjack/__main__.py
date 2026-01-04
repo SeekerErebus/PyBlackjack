@@ -15,6 +15,8 @@ def main():
     while (player.bank.balance > 0 and
            dealer.bank.balance > 0):
         starting_bet = player_turn.player_ante(player)
+        # Debug
+        #print(f"DEBUG: Post ante, starting_bet: {starting_bet}")
         blackjack.start_round(dealer, player, deck, starting_bet)
         insurance: float = 0.0
         dealer_upcard = dealer.get_visible_card()
@@ -24,7 +26,15 @@ def main():
         blackjack.process_dealer_turn(dealer, deck)
         blackjack.settle_insurance(dealer, player, insurance, dealer.hand.has_blackjack)
         end_state_str = f""
+        # Debug
+        #debug_count = 0
         for hand in player.split_hands:
+            # Debug
+            #print(f"DEBUG: main, for hand in player.split_hands")
+            #print(f"    hand number: {debug_count}")
+            #debug_count += 1
+            #print(f"    bet: {hand.bet.balance}")
+            # End Debug
             result = blackjack.determine_winner(
                 dealer_hand=dealer.hand, 
                 player_hand=hand, 
@@ -37,7 +47,7 @@ def main():
         if not prompt_continue_game():
             break
         deck.confirm_deck_health()
-    show_game_end_score(starting_player_balance, player.bank.balance)
+    show_game_end_score(starting_player_balance, player.bank.balance, dealer.bank.balance)
     print("Thanks for Playing!")
 
 

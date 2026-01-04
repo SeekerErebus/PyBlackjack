@@ -24,6 +24,10 @@ class Player(Actor):
         :type starting_balance: float | int
         """
         super().__init__(name, starting_balance)
+    
+    def start_hand(self, starting_cards: list[PlayingCard], bet_value: float | int = 0) -> None:
+        super().start_hand(starting_cards, bet_value)
+        self.bank.add_transaction("Starting Bet", -bet_value)
 
     def hit(self, card: PlayingCard) -> int:
         """
@@ -45,7 +49,9 @@ class Player(Actor):
         :return: The new hand value after the card is added.
         :rtype: int
         """
+        bet_value = self.hand.bet.balance
         result = self.hand.double_down(card)
+        self.bank.add_transaction("Double Down", -bet_value)
         return result
     
     def split(self, cards: list[PlayingCard]) -> None:
@@ -59,11 +65,12 @@ class Player(Actor):
             raise ValueError("Need two cards to split correctly.")
         split_hand_one = Hand([self.hand.cards[0], cards[0]], self.hand.bet.balance)
         split_hand_two = Hand([self.hand.cards[1], cards[1]], self.hand.bet.balance)
+        self.bank.add_transaction("Split", -self.hand.bet.balance)
 
         hand_index = self.current_hand_index
         self.split_hands[hand_index] = split_hand_one
         self.split_hands.insert(hand_index + 1, split_hand_two)
-        self.__update_hand()
+        self._update_hand()
     
     def next_hand(self) -> bool:
         """
@@ -73,4 +80,4 @@ class Player(Actor):
         :rtype: bool
         """
         next_index = self.current_hand_index + 1
-        return self.__update_hand(new_index=next_index)
+        return self._update_hand(new_index=next_index)

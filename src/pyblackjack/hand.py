@@ -14,6 +14,8 @@ class Hand:
         self.has_blackjack = False
         self.has_stood = False
         self.has_busted = False
+        # Debug
+        #print(f"DEBUG: Hand(), bet_value: {bet_value}")
         self.bet = Bank(bet_value)
         self.insurance = Bank()
     

@@ -22,6 +22,8 @@ class Bank:
         """
         self.__transaction_history: list[Transaction] = [Transaction("Initial Balance", float(balance), 0)]
         self.balance = self._refresh_balance()
+        # Debug
+        #print(f"DEBUG: Bank(), self.balance: {self.balance}")
     
     def add_transaction(self, name: str, amount: float | int) -> None:
         """
@@ -33,8 +35,12 @@ class Bank:
         :type amount: float | int
         """
         invoice_num = len(self.__transaction_history)
+        # Debug
+        #print(f"DEBUG: Bank, add_transaction(name={name}, amount={amount}")
         self.__transaction_history.append(Transaction(name=name, amount=amount, invoice_num=invoice_num))
         self.balance += float(amount)
+        # Debug
+        #print(f"DEBUG: bank balance: {self.balance}")
 
     def _refresh_balance(self) -> float:
         return float(sum(t.value for t in self.__transaction_history))

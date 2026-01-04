@@ -19,7 +19,7 @@ class Rank(Enum):
     KING = 13
 
     def __repr__(self) -> str:
-        return f"{self.name.title()}"
+        return f"{self.name.title().capitalize()}"
 
 class Suit(Enum):
     """
@@ -31,7 +31,7 @@ class Suit(Enum):
     DIAMONDS = 4
 
     def __repr__(self) -> str:
-        return f"{self.name.title()}"
+        return f"{self.name.title().capitalize()}"
 
 class PlayingCard:
     """
@@ -48,4 +48,4 @@ class PlayingCard:
         self.value = 10 if rank.value > 10 else rank.value
 
     def __repr__(self) -> str:
-        return f"{self.rank} of {self.suit}"
+        return f"{repr(self.rank)} of {repr(self.suit)}"

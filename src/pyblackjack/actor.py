@@ -1,7 +1,7 @@
 from .bank import Bank
 from .playing_card import PlayingCard
 from .hand import Hand
-from .blackjack import RoundResults
+from .round_results import RoundResults
 from dataclasses import dataclass
 
 
@@ -58,9 +58,12 @@ class Actor:
         :param bet_value: The bet value of the hand.
         :type bet_value: float | int
         """
+        # Debug
+        #print(f"DEBUG: actor.start_hand, bet_value: {bet_value}")
         self.hand = Hand(starting_cards=starting_cards, bet_value=bet_value)
+        self.split_hands[self.current_hand_index] = self.hand
     
-    def __update_hand(self, new_index: int | None = None) -> bool:
+    def _update_hand(self, new_index: int | None = None) -> bool:
         """
         Updates the hand pointer.
         

@@ -28,7 +28,9 @@ def player_insurance(player: Player, bet_value: float) -> float:
     :return: The insurance bet
     :rtype: float
     """
-    return prompt_insurance(player.bank.balance, bet_value)
+    result = prompt_insurance(player.bank.balance, bet_value)
+    player.bank.add_transaction("Insurance Buy", result)
+    return result
 
 def player_turn(player: Player, dealer_upcard: PlayingCard, deck: Deck) -> None:
     """
@@ -41,6 +43,7 @@ def player_turn(player: Player, dealer_upcard: PlayingCard, deck: Deck) -> None:
     :param deck: The deck.
     :type deck: Deck
     """
+    
     while player.current_hand_index < len(player.split_hands):
         while not player.hand.has_stood:
             round_state_str = cli_output_processor.get_round_state_str(dealer_upcard, player, deck)
@@ -56,19 +59,20 @@ def player_turn(player: Player, dealer_upcard: PlayingCard, deck: Deck) -> None:
             match choice:
                 case PossibleActions.HIT:
                     new_card = deck.drawCard()
-                    cli_output_processor.print_new_card(new_card, player.name)
+                    cli_output_processor.print_new_card(player, new_card)
                     current_hand.add_card(new_card)
                 case PossibleActions.DOUBLE:
                     new_card = deck.drawCard()
-                    cli_output_processor.print_new_card(new_card, player.name)
+                    cli_output_processor.print_new_card(player, new_card)
                     current_hand.double_down(new_card)
                 case PossibleActions.SPLIT:
                     drawn_cards: list[PlayingCard] = []
                     for _ in range(2):
                         new_card = deck.drawCard()
-                        cli_output_processor.print_new_card(new_card, player.name)
+                        cli_output_processor.print_new_card(player, new_card)
                         drawn_cards.append(new_card)
                     player.split(drawn_cards)
                 case PossibleActions.STAND:
                     current_hand.has_stood = True
-        player.next_hand()
+        if not player.next_hand():
+            break

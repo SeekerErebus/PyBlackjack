@@ -29,21 +29,13 @@ from .dealer import Dealer
 from .player import Player
 from .playing_card import PlayingCard
 from .deck import Deck
-from .cli_output_processor import print_new_card
+from .cli_output_processor import print_new_card, print_dealer_held_card
+from .round_results import RoundResults
 from enum import Enum
 
 BLACKJACK_PAYOUT = 3 / 2
 STANDARD_PAYOUT = 1
 INSURANCE_PAYOUT = 2
-
-class RoundResults(Enum):
-    """
-    Enum of Possible Round End States
-    """
-    DEALER_WON = 1
-    PLAYER_WON = 2
-    PLAYER_WON_BLACKJACK = 3
-    PUSH = 4
 
 class PossibleActions(Enum):
     """
@@ -99,26 +91,39 @@ def settle_bets(dealer: Dealer, player: Player, bet: float, results: RoundResult
     :type results: RoundResults
     """
     output_str = f"{player.name}"
+    # Debug
+    #print(f"DEBUG: bet_value: {bet}")
+    # End Debug
+    amount = 0
     match results:
         case RoundResults.DEALER_WON:
             amount = bet
+            # Debug
+            #print(f"DEBUG: amount: {amount}")
+            # End Debug
             output_str += f" Lost {amount:.2f}"
             dealer.bank.add_transaction("Won Round", amount)
-            player.bank.add_transaction("Lost Round", amount)
         case RoundResults.PLAYER_WON:
             amount = bet * STANDARD_PAYOUT
+            # Debug
+            #print(f"DEBUG: amount: {amount}")
+            # End Debug
             output_str += f" Won {amount:.2f}"
             dealer.bank.add_transaction("Lost Round", -amount)
-            player.bank.add_transaction("Won Round", amount)
+            player.bank.add_transaction("Won Round", bet + amount)
         case RoundResults.PLAYER_WON_BLACKJACK:
             amount = bet * BLACKJACK_PAYOUT
-            output_str += f" Won {bet:.2f}"
+            # Debug
+            #print(f"DEBUG: amount: {amount}")
+            # End Debug
+            output_str += f" Won {amount:.2f}"
             dealer.bank.add_transaction("Lost Round", -amount)
-            player.bank.add_transaction("Won Round", amount)
+            player.bank.add_transaction("Won Round", bet + amount)
         case RoundResults.PUSH:
             output_str += f" Pushed."
-    dealer.history.add_round(results, bet)
-    player.history.add_round(results, bet)
+            player.bank.add_transaction("Pushed", bet)
+    dealer.history.add_round(results, amount)
+    player.history.add_round(results, amount)
     output_str += "\n"
     return output_str
 
@@ -139,7 +144,7 @@ def settle_insurance(dealer: Dealer, player: Player, insurance: float, dealer_bl
         return
     if dealer_blackjack:
         dealer.bank.add_transaction("Insurance Payout", -insurance * INSURANCE_PAYOUT)
-        player.bank.add_transaction("Insurance Payout", insurance * INSURANCE_PAYOUT)
+        player.bank.add_transaction("Insurance Payout", insurance + (insurance * INSURANCE_PAYOUT))
     else:
         dealer.bank.add_transaction("Insurance Payout", insurance)
 
@@ -156,15 +161,27 @@ def start_round(dealer: Dealer, player: Player, deck: Deck, bet_value: float | i
     :param bet_value: The value of the bet.
     :type bet_value: float | int
     """
+    # Debug
+    #print(f"DEBUG: start_round, pre-dealer-resethand. bet_value: {bet_value}")
     dealer.reset_hand()
+    # Debug
+    #print(f"DEBUG: start_round, pre-player-post-dealer-resethand. dealer.hand.bet.balance: {dealer.hand.bet.balance}")
     player.reset_hand()
+    # Debug
+    #print(f"DEBUG: start_round, post-player-resethand. player.hand.bet.balance: {player.hand.bet.balance}")
     player_hand: list[PlayingCard] = []
     dealer_hand: list[PlayingCard] = []
     for _ in range(2):
         player_hand.append(deck.drawCard())
         dealer_hand.append(deck.drawCard())
+    # Debug
+    #print(f"DEBUG: start_round, pre-dealer-start_hand")
     dealer.start_hand(dealer_hand, bet_value)
+    # Debug
+    #print(f"DEBUG: start_round, pre-player-post-dealer-start_hand. dealer.hand.bet.balance {dealer.hand.bet.balance}")
     player.start_hand(player_hand, bet_value)
+    # Debug
+    #print(f"DEBUG: start_round, post-player-start_hand. player.hand.bet.balance {player.hand.bet.balance}")
     if dealer.hand.get_hand_value() == 21:
         dealer.hand.has_blackjack = True
     if player.hand.get_hand_value() == 21:
@@ -182,11 +199,12 @@ def process_dealer_turn(dealer: Dealer, deck: Deck) -> int:
     :return: The final hand value.
     :rtype: int
     """
+    print_dealer_held_card(dealer)
     if dealer.hand.has_blackjack == True:
         return dealer.hand.get_hand_value()
     while dealer.hand.get_hand_value() < 17:
         new_card = deck.drawCard()
-        print_new_card(new_card, dealer.name)
+        print_new_card(dealer, new_card)
         dealer.hand.add_card(new_card)
     dealer.hand.has_stood = True
     return dealer.hand.get_hand_value()
